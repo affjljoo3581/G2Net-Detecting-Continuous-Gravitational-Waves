@@ -34,4 +34,4 @@ def create_input_image_from_SFTs(
     mam_exp_L1_H1 = np.exp(mam_L1_H1**2)
 
     image = np.stack((L1_mean, H1_mean, mbm_L1_H1, mam_L1_H1, mam_exp_L1_H1), axis=2)
-    return _normalize(image, axis=(0, 1))
+    return _normalize(image, axis=(0, 1)).astype(np.float16)
