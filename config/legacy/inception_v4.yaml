@@ -1,0 +1,31 @@
+data:
+  train:
+    filenames: resources/external/synthesized/*.npy
+  validation:
+    filenames: resources/competition/train/*.npy
+    labels: resources/competition/train_labels.csv
+
+model:
+  model_name: inception_v4
+  pretrained: True
+  drop_rate: 0.1
+  num_classes: 1
+  in_chans: 4
+
+optim:
+  optimizer:
+    lr: 1e-4
+    betas: [0.9, 0.999]
+    eps: 1e-6
+    weight_decay: 1e-4
+  scheduler:
+    min_lr: 1e-5
+
+train:
+  name: inception_v4
+  epochs: 2
+  batch_size: 128
+  accumulate_grad_batches: 1
+  validation_interval: 0.01
+  gradient_clip_val: 0
+  log_every_n_steps: 10

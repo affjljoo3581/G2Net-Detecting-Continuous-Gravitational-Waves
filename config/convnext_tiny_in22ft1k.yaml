@@ -1,0 +1,33 @@
+data:
+  train:
+    filenames: resources/external/synthesized/*.npy
+  validation:
+    filenames: resources/competition/train/*.npy
+    labels: resources/competition/train_labels.csv
+
+model:
+  model_name: convnext_tiny_in22ft1k
+  pretrained: True
+  drop_rate: 0.1
+  num_classes: 1
+  in_chans: 4
+
+optim:
+  optimizer:
+    betas: [0.9, 0.999]
+    eps: 1e-6
+    weight_decay: 1e-5
+  scheduler:
+    max_lr: 5e-4
+    pct_start: 0.3
+    anneal_strategy: cos
+    three_phase: false
+
+train:
+  name: convnext_tiny_in22ft1k
+  epochs: 5
+  batch_size: 256
+  accumulate_grad_batches: 1
+  validation_interval: 0.05
+  gradient_clip_val: 0
+  log_every_n_steps: 10
