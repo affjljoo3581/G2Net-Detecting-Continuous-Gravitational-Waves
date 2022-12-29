@@ -30,6 +30,7 @@ class G2NetLightningModule(LightningModule):
     ) -> tuple[torch.Tensor, torch.Tensor]:
         if self.training:
             lam = np.random.beta(0.2, 0.2)
+            lam = min(lam, 1 - lam)
             images = lam * batch["images"] + (1 - lam) * batch["images"].flip(0)
 
             logits = self.model(images).squeeze(1)
