@@ -12,10 +12,6 @@ import torch
 import tqdm
 
 
-def sample_signal_strength(low: float = 0.01, high: float = 0.05) -> float:
-    return (high - low) * (2 / (1 + np.random.rand()) - 1) + low
-
-
 def augment_signals(signals: torch.Tensor) -> torch.Tensor:
     if np.random.rand() < 0.5:
         signals = signals[:, :, :, ::-1]
@@ -54,7 +50,7 @@ def process_fn(args: argparse.Namespace, index: int, queue: mp.Queue):
         signals, strength = None, 0
         if np.random.random() < 0.5:
             signals = np.load(np.random.choice(filenames)).astype(np.float32)
-            strength = sample_signal_strength(args.low_strength, args.high_strength)
+            strength = np.random.uniform(args.low_strength, args.high_strength)
 
         psds = create_synthesized_psds(args, signals, strength)
         filename = f"{name}-{int(strength * 1e8):08d}.npy"

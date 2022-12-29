@@ -32,6 +32,7 @@ def _create_input_image_from_psds(psds: np.ndarray) -> np.ndarray:
 @dataclass
 class G2NetTrainDataset(Dataset):
     filenames: list[str]
+    validation: bool = False
 
     def __len__(self) -> int:
         return len(self.filenames)
@@ -53,23 +54,32 @@ class G2NetTrainDataset(Dataset):
         strength = os.path.basename(self.filenames[index])[:-4].split("-")[-1]
         strength = torch.tensor(int(strength) / 10 ** len(strength))
 
-        # Random vertical and horizontal flip.
-        if np.random.rand() < 0.5:
-            psds = psds[:, :, ::-1]
-        if np.random.rand() < 0.5:
-            psds = psds[:, ::-1, :]
+        if not self.validation:
+            # Randomly mix two adjacent vertical lines.
+            indices = np.arange(psds.shape[2]) + np.random.uniform(0, 2, psds.shape[2])
+            psds = np.ascontiguousarray(psds[:, :, np.argsort(indices)])
 
-        # Add random horizontal noise lines.
-        if np.random.rand() < 0.1:
-            target = np.random.randint(2)
-            for _ in range(np.random.choice(3, p=[0.5, 0.3, 0.2])):
-                self._add_horizontal_line(psds[target])
+            # Randomly mix two adjacent horizontal lines.
+            indices = np.arange(psds.shape[1]) + np.random.uniform(0, 3, psds.shape[1])
+            psds = np.ascontiguousarray(psds[:, np.argsort(indices), :])
 
-        # Add random horizontal noise beams.
-        if np.random.rand() < 0.05:
-            target = np.random.randint(2)
-            for _ in range(np.random.choice(2, p=[0.7, 0.3])):
-                self._add_horizontal_beam(psds[target])
+            # Random vertical and horizontal flip.
+            if np.random.rand() < 0.5:
+                psds = np.ascontiguousarray(psds[:, :, ::-1])
+            if np.random.rand() < 0.5:
+                psds = np.ascontiguousarray(psds[:, ::-1, :])
+
+            # Add random horizontal noise lines.
+            if np.random.rand() < 0.1:
+                target = np.random.randint(2)
+                for _ in range(np.random.choice(3, p=[0.5, 0.3, 0.2])):
+                    self._add_horizontal_line(psds[target])
+
+            # Add random horizontal noise beams.
+            if np.random.rand() < 0.05:
+                target = np.random.randint(2)
+                for _ in range(np.random.choice(2, p=[0.7, 0.3])):
+                    self._add_horizontal_beam(psds[target])
 
         return {
             "images": torch.from_numpy(_create_input_image_from_psds(psds)),
@@ -96,25 +106,36 @@ class G2NetTestDataset(Dataset):
         return output
 
 
-def create_train_val_dataloaders(config: DictConfig) -> tuple[DataLoader, DataLoader]:
+def create_train_val_dataloaders(
+    config: DictConfig,
+) -> tuple[DataLoader, list[DataLoader]]:
     train_dataloader = DataLoader(
-        dataset=G2NetTrainDataset(filenames=glob.glob(config.data.train.filenames)),
+        dataset=G2NetTrainDataset(glob.glob(config.data.train.filenames)),
         batch_size=config.train.batch_size,
         shuffle=True,
         num_workers=os.cpu_count(),
         persistent_workers=True,
         prefetch_factor=1,
     )
-    val_dataloader = DataLoader(
-        dataset=G2NetTestDataset(
-            filenames=glob.glob(config.data.validation.filenames),
-            labels=pd.read_csv(config.data.validation.labels, index_col="id"),
+    val_fake_dataloader = DataLoader(
+        dataset=G2NetTrainDataset(
+            filenames=glob.glob(config.data.validation_fake.filenames),
+            validation=True,
         ),
         batch_size=config.train.batch_size,
         num_workers=os.cpu_count(),
         persistent_workers=True,
     )
-    return train_dataloader, val_dataloader
+    val_real_dataloader = DataLoader(
+        dataset=G2NetTestDataset(
+            filenames=glob.glob(config.data.validation_real.filenames),
+            labels=pd.read_csv(config.data.validation_real.labels, index_col="id"),
+        ),
+        batch_size=config.train.batch_size,
+        num_workers=os.cpu_count(),
+        persistent_workers=True,
+    )
+    return train_dataloader, [val_fake_dataloader, val_real_dataloader]
 
 
 if __name__ == "__main__":

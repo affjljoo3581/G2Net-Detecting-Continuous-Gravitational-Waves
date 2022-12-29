@@ -83,12 +83,12 @@ def main(args: argparse.Namespace):
     os.makedirs(args.output_directory, exist_ok=True)
 
     processes, queue = [], mp.Queue()
-    for i in tqdm.trange(args.cpu_cores):
+    for i in range(args.cpu_cores):
         p = mp.Process(target=process_fn, args=(args, i, queue), daemon=True)
         processes.append(p)
         p.start()
 
-    for _ in tqdm.tbar(args.num_samples):
+    for _ in tqdm.trange(args.num_samples):
         queue.get()
 
     for p in processes:
