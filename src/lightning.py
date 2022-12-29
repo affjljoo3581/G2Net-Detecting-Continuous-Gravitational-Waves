@@ -31,8 +31,8 @@ class G2NetLightningModule(LightningModule):
         if self.training:
             lam = abs(np.random.beta(0.2, 0.2) - 0.5) + 0.5
             images = lam * batch["images"] + (1 - lam) * batch["images"].flip(0)
-
             logits = self.model(images).squeeze(1)
+
             loss_a = F.binary_cross_entropy_with_logits(logits, batch["labels"])
             loss_b = F.binary_cross_entropy_with_logits(logits, batch["labels"].flip(0))
             loss = lam * loss_a + (1 - lam) * loss_b
