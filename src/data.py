@@ -56,12 +56,12 @@ class G2NetTrainDataset(Dataset):
 
         if not self.validation:
             # Randomly mix two adjacent vertical lines.
-            indices = np.arange(psds.shape[2]) + np.random.uniform(0, 2, psds.shape[2])
-            psds = np.ascontiguousarray(psds[:, :, np.argsort(indices)])
+            # indices = np.arange(psds.shape[2]) + np.random.uniform(0, 2, psds.shape[2])
+            # psds = np.ascontiguousarray(psds[:, :, np.argsort(indices)])
 
             # Randomly mix two adjacent horizontal lines.
-            indices = np.arange(psds.shape[1]) + np.random.uniform(0, 3, psds.shape[1])
-            psds = np.ascontiguousarray(psds[:, np.argsort(indices), :])
+            # indices = np.arange(psds.shape[1]) + np.random.uniform(0, 3, psds.shape[1])
+            # psds = np.ascontiguousarray(psds[:, np.argsort(indices), :])
 
             # Random vertical and horizontal flip.
             if np.random.rand() < 0.5:
