@@ -139,11 +139,14 @@ def create_train_val_dataloaders(
 
 
 if __name__ == "__main__":
+    import random
     import time
 
     import matplotlib.pyplot as plt
 
-    dataset = G2NetTrainDataset(glob.glob("resources/external/train/synthesized/*"))
+    filenames = glob.glob("resources/external/train/synthesized/*")
+    random.shuffle(filenames)
+    dataset = G2NetTrainDataset(filenames)
     # dataset = G2NetPSDDataset(
     #     glob.glob("resources/train/*"),
     #     pd.read_csv("resources/train_labels.csv", index_col="id"),
@@ -161,6 +164,6 @@ if __name__ == "__main__":
         x = dataset[i]
         for j in range(4):
             plt.subplot(1, 4, j + 1)
-            plt.title(x["labels"])
+            plt.title(x["strengths"])
             plt.imshow(x["images"][j].numpy())
         plt.show()

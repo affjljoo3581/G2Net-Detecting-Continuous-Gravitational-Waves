@@ -48,7 +48,7 @@ def process_fn(args: argparse.Namespace, index: int, queue: mp.Queue):
         name = "".join(random.choices("0123456789abcdef", k=16))
 
         signals, strength = None, 0
-        if np.random.random() < 0.5:
+        if np.random.rand() < 0.5:
             signals = np.load(np.random.choice(filenames)).astype(np.float32)
             strength = np.random.uniform(args.low_strength, args.high_strength)
 

@@ -23,7 +23,7 @@ class G2NetLightningModule(LightningModule):
 
         # These are for aggregating accuracies of recent samples from the train dataset.
         self._queues = defaultdict(lambda: deque(maxlen=1000))
-        self._milestones = np.linspace(0.01, 0.05 + 1e-10, 5 + 1)
+        self._milestones = np.linspace(0.01, 0.05, 5 + 1)
 
     def forward(
         self, images: torch.Tensor, labels: torch.Tensor, **kwargs: Any
