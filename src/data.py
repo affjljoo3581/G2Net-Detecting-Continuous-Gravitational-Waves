@@ -143,7 +143,7 @@ if __name__ == "__main__":
 
     import matplotlib.pyplot as plt
 
-    dataset = G2NetTrainDataset(glob.glob("resources/external/synthesized/*"))
+    dataset = G2NetTrainDataset(glob.glob("resources/external/train/synthesized/*"))
     # dataset = G2NetPSDDataset(
     #     glob.glob("resources/train/*"),
     #     pd.read_csv("resources/train_labels.csv", index_col="id"),
@@ -158,9 +158,9 @@ if __name__ == "__main__":
 
     """
     for i in range(10):
-        x, y = dataset[i]
+        x = dataset[i]
         for j in range(4):
             plt.subplot(1, 4, j + 1)
-            plt.title(y)
-            plt.imshow(x[j].numpy())
+            plt.title(x["labels"])
+            plt.imshow(x["images"][j].numpy())
         plt.show()

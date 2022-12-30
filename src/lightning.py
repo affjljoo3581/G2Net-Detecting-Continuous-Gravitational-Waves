@@ -26,23 +26,21 @@ class G2NetLightningModule(LightningModule):
         self._milestones = np.linspace(0.01, 0.05 + 1e-10, 5 + 1)
 
     def forward(
-        self, batch: dict[str, torch.Tensor]
+        self, images: torch.Tensor, labels: torch.Tensor, **kwargs: Any
     ) -> tuple[torch.Tensor, torch.Tensor]:
         if self.training:
             lam = abs(np.random.beta(0.2, 0.2) - 0.5) + 0.5
-            images = lam * batch["images"] + (1 - lam) * batch["images"].flip(0)
-            logits = self.model(images).squeeze(1)
+            images = lam * images + (1 - lam) * images.flip(0)
+            labels = lam * labels + (1 - lam) * labels.flip(0)
 
-            loss_a = F.binary_cross_entropy_with_logits(logits, batch["labels"])
-            loss_b = F.binary_cross_entropy_with_logits(logits, batch["labels"].flip(0))
-            loss = lam * loss_a + (1 - lam) * loss_b
-        else:
-            logits = self.model(batch["images"]).squeeze(1)
-            loss = F.binary_cross_entropy_with_logits(logits, batch["labels"])
+            images = images + 0.1 * torch.randn_like(images[:1])
+
+        logits = self.model(images).squeeze(1)
+        loss = F.binary_cross_entropy_with_logits(logits, labels)
         return logits, loss
 
     def training_step(self, batch: dict[str, torch.Tensor], idx: int) -> torch.Tensor:
-        logits, loss = self(batch)
+        logits, loss = self(**batch)
         corrects = (logits > 0).float() == batch["labels"]
 
         self.log("train/loss", loss)
@@ -52,7 +50,7 @@ class G2NetLightningModule(LightningModule):
     def validation_step(
         self, batch: dict[str, torch.Tensor], batch_idx: int, dataloader_idx: int
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor | None]:
-        logits, loss = self(batch)
+        logits, loss = self(**batch)
         name = "val/fake/loss" if dataloader_idx == 0 else "val/real/loss"
         self.log(name, loss, add_dataloader_idx=False)
         return logits.sigmoid(), batch["labels"].long(), batch.get("strengths", None)
