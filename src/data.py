@@ -115,7 +115,6 @@ def create_train_val_dataloaders(
         shuffle=True,
         num_workers=os.cpu_count(),
         persistent_workers=True,
-        prefetch_factor=1,
     )
     val_fake_dataloader = DataLoader(
         dataset=G2NetTrainDataset(

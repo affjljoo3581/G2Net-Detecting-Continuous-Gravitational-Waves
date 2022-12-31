@@ -36,7 +36,7 @@ class G2NetLightningModule(LightningModule):
         #     images = images + 0.1 * torch.randn_like(images[:1])
 
         logits = self.model(images).squeeze(1)
-        loss = F.binary_cross_entropy_with_logits(logits, labels)
+        loss = F.binary_cross_entropy_with_logits(logits, labels * 0.8 + 0.1)
         return logits, loss
 
     def training_step(self, batch: dict[str, torch.Tensor], idx: int) -> torch.Tensor:
