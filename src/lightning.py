@@ -35,12 +35,15 @@ class G2NetLightningModule(LightningModule):
         #
         #     images = images + 0.1 * torch.randn_like(images[:1])
 
-        logits = self.model(images).squeeze(1)
-        loss = F.binary_cross_entropy_with_logits(logits, labels)
-        return logits, loss
+        # logits = self.model(images).squeeze(1)
+        # loss = F.binary_cross_entropy_with_logits(logits, labels)
+        # return logits, loss
+        return self.model(images).squeeze(1)
 
     def training_step(self, batch: dict[str, torch.Tensor], idx: int) -> torch.Tensor:
-        logits, loss = self(**batch)
+        # logits, loss = self(**batch)
+        logits = self(**batch)
+        loss = F.binary_cross_entropy_with_logits(logits, batch["labels"])
         corrects = (logits > 0).float() == batch["labels"]
 
         self.log("train/loss", loss)
@@ -50,7 +53,9 @@ class G2NetLightningModule(LightningModule):
     def validation_step(
         self, batch: dict[str, torch.Tensor], batch_idx: int, dataloader_idx: int
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor | None]:
-        logits, loss = self(**batch)
+        # logits, loss = self(**batch)
+        logits = self(**batch)
+        loss = F.binary_cross_entropy_with_logits(logits, batch["labels"])
         name = "val/fake/loss" if dataloader_idx == 0 else "val/real/loss"
         self.log(name, loss, add_dataloader_idx=False)
         return logits.sigmoid(), batch["labels"].long(), batch.get("strengths", None)
