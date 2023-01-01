@@ -32,7 +32,7 @@ class G2NetLightningModule(LightningModule):
             # lam = abs(np.random.beta(0.2, 0.2) - 0.5) + 0.5
             # images = lam * images + (1 - lam) * images.flip(0)
             # labels = lam * labels + (1 - lam) * labels.flip(0)
-            images = images + 0.1 * torch.randn_like(images[:1])
+            images = images + 0.1 * torch.randn_like(images)
 
         logits = self.model(images).squeeze(1)
         loss = F.binary_cross_entropy_with_logits(logits, labels)
