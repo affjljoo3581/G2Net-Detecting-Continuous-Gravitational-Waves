@@ -32,6 +32,6 @@ train:
   epochs: 5
   batch_size: 256
   accumulate_grad_batches: 1
-  validation_interval: 0.01
+  validation_interval: 0.05
   gradient_clip_val: 0
   log_every_n_steps: 10
