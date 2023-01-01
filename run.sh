@@ -1,6 +1,5 @@
-# python src/train.py config/tf_efficientnetv2_b0.yaml
-# python src/train.py config/convnext_small_in22ft1k.yaml
-# python src/train.py config/convnext_tiny_in22ft1k.yaml
+python src/train.py config/tf_efficientnetv2_b0.yaml train.epochs=3 optim.optimizer.weight_decay=1e-4
+python src/train.py config/tf_efficientnetv2_b0.yaml train.epochs=5 optim.optimizer.weight_decay=1e-4
 
-python src/train.py config/tf_efficientnetv2_b0.yaml train.epochs=5
-python src/train.py config/tf_efficientnetv2_b0.yaml train.epochs=10
+python src/train.py config/tf_efficientnetv2_b0.yaml train.epochs=3 optim.optimizer.weight_decay=1e-5
+python src/train.py config/tf_efficientnetv2_b0.yaml train.epochs=5 optim.optimizer.weight_decay=1e-5
