@@ -28,21 +28,18 @@ class G2NetLightningModule(LightningModule):
     def forward(
         self, images: torch.Tensor, labels: torch.Tensor, **kwargs: Any
     ) -> tuple[torch.Tensor, torch.Tensor]:
-        # if self.training:
-        #     lam = abs(np.random.beta(0.2, 0.2) - 0.5) + 0.5
-        #     images = lam * images + (1 - lam) * images.flip(0)
-        #     labels = lam * labels + (1 - lam) * labels.flip(0)
-        #
-        #     images = images + 0.1 * torch.randn_like(images[:1])
+        if self.training:
+            # lam = abs(np.random.beta(0.2, 0.2) - 0.5) + 0.5
+            # images = lam * images + (1 - lam) * images.flip(0)
+            # labels = lam * labels + (1 - lam) * labels.flip(0)
+            images = images + 0.1 * torch.randn_like(images[:1])
 
-        # logits = self.model(images).squeeze(1)
-        # loss = F.binary_cross_entropy_with_logits(logits, labels)
-        # return logits, loss
-        return self.model(images).squeeze(1)
+        logits = self.model(images).squeeze(1)
+        loss = F.binary_cross_entropy_with_logits(logits, labels)
+        return logits, loss
 
     def training_step(self, batch: dict[str, torch.Tensor], idx: int) -> torch.Tensor:
-        # logits, loss = self(**batch)
-        logits = self(**batch)
+        logits, loss = self(**batch)
         loss = F.binary_cross_entropy_with_logits(logits, batch["labels"])
         corrects = (logits > 0).float() == batch["labels"]
 
@@ -53,8 +50,7 @@ class G2NetLightningModule(LightningModule):
     def validation_step(
         self, batch: dict[str, torch.Tensor], batch_idx: int, dataloader_idx: int
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor | None]:
-        # logits, loss = self(**batch)
-        logits = self(**batch)
+        logits, loss = self(**batch)
         loss = F.binary_cross_entropy_with_logits(logits, batch["labels"])
         name = "val/fake/loss" if dataloader_idx == 0 else "val/real/loss"
         self.log(name, loss, add_dataloader_idx=False)

@@ -60,8 +60,8 @@ class G2NetTrainDataset(Dataset):
             psds = np.ascontiguousarray(psds[:, :, np.argsort(indices)])
 
             # Randomly mix two adjacent horizontal lines.
-            # indices = np.arange(psds.shape[1]) + np.random.uniform(0, 3, psds.shape[1])
-            # psds = np.ascontiguousarray(psds[:, np.argsort(indices), :])
+            indices = np.arange(psds.shape[1]) + np.random.uniform(0, 3, psds.shape[1])
+            psds = np.ascontiguousarray(psds[:, np.argsort(indices), :])
 
             # Random vertical and horizontal flip.
             if np.random.rand() < 0.5:
@@ -164,5 +164,6 @@ if __name__ == "__main__":
         for j in range(4):
             plt.subplot(1, 4, j + 1)
             plt.title(x["strengths"])
-            plt.imshow(x["images"][j].numpy())
+            # plt.imshow(x["images"][j].numpy())
+            plt.hist(x["images"][j].flatten(), bins=100)
         plt.show()

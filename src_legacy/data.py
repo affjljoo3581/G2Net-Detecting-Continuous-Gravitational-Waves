@@ -54,6 +54,14 @@ class G2NetTrainDataset(Dataset):
         strength = os.path.basename(self.filenames[index])[:-4].split("-")[-1]
         strength = torch.tensor(int(strength) / 10 ** len(strength))
 
+        # Randomly mix two adjacent vertical lines.
+        indices = np.arange(psds.shape[2]) + np.random.uniform(0, 2, psds.shape[2])
+        psds = np.ascontiguousarray(psds[:, :, np.argsort(indices)])
+
+        # Randomly mix two adjacent horizontal lines.
+        indices = np.arange(psds.shape[1]) + np.random.uniform(0, 3, psds.shape[1])
+        psds = np.ascontiguousarray(psds[:, np.argsort(indices), :])
+
         # Random vertical and horizontal flip.
         if np.random.rand() < 0.5:
             psds = np.ascontiguousarray(psds[:, :, ::-1])
@@ -72,10 +80,10 @@ class G2NetTrainDataset(Dataset):
             for _ in range(np.random.choice(2, p=[0.7, 0.3])):
                 self._add_horizontal_beam(psds[target])
 
-        return (
-            torch.from_numpy(_create_input_image_from_psds(psds)),
-            (strength > 0).float(),
-        )
+        return {
+            "images": torch.from_numpy(_create_input_image_from_psds(psds)),
+            "labels": (strength > 0).float(),
+        }
 
 
 @dataclass
@@ -93,7 +101,7 @@ class G2NetTestDataset(Dataset):
         if self.labels is not None:
             label = self.labels.loc[os.path.basename(self.filenames[index])[:-4]].target
             output["labels"] = torch.tensor(label, dtype=torch.float32)
-        return output["images"], output["labels"]
+        return output
 
 
 def create_train_val_dataloaders(
