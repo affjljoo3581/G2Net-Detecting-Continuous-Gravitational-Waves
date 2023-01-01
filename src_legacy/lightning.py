@@ -31,7 +31,7 @@ class G2NetLightningModule(LightningModule):
 
     def training_step(self, batch: dict[str, torch.Tensor], idx: int) -> torch.Tensor:
         logits = self(batch[0])
-        loss = F.binary_cross_entropy_with_logits(logits, batch[1])
+        loss = F.binary_cross_entropy_with_logits(logits, batch[1] * 0.8 + 0.1)
         self.log("train/loss", loss)
         return loss
 
