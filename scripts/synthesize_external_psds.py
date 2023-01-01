@@ -14,9 +14,9 @@ import tqdm
 
 def augment_signals(signals: torch.Tensor) -> torch.Tensor:
     if np.random.rand() < 0.5:
-        signals = signals[:, :, :, ::-1]
+        signals = np.ascontiguousarray(signals[:, :, :, ::-1])
     if np.random.rand() < 0.5:
-        signals = signals[:, :, ::-1, :]
+        signals = np.ascontiguousarray(signals[:, :, ::-1, :])
     if np.random.rand() < 0.5:
         scale = np.random.uniform(0.8, 1.2)
         signals = signals.reshape(-1, *signals.shape[2:]).transpose(1, 2, 0)
