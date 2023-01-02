@@ -29,9 +29,9 @@ class G2NetLightningModule(LightningModule):
         self, images: torch.Tensor, labels: torch.Tensor, **kwargs: Any
     ) -> tuple[torch.Tensor, torch.Tensor]:
         if self.training:
-            # lam = abs(np.random.beta(0.2, 0.2) - 0.5) + 0.5
-            # images = lam * images + (1 - lam) * images.flip(0)
-            # labels = lam * labels + (1 - lam) * labels.flip(0)
+            lam = abs(np.random.beta(0.2, 0.2) - 0.5) + 0.5
+            images = lam * images + (1 - lam) * images.flip(0)
+            labels = lam * labels + (1 - lam) * labels.flip(0)
             images = images + 0.1 * torch.randn_like(images)
 
         logits = self.model(images).squeeze(1)
