@@ -1,7 +1,7 @@
 # G2Net Detecting Continuous Gravitational Waves
 
 ## Introduction
-This repository contains the code that acheived 12th place in [G2Net Detecting Continuous Gravitational Waves](https://www.kaggle.com/competitions/g2net-detecting-continuous-gravitational-waves/overview).
+This repository contains the code that achieve 12th place in [G2Net Detecting Continuous Gravitational Waves](https://www.kaggle.com/competitions/g2net-detecting-continuous-gravitational-waves/overview).
 
 ## Requirements
 * numpy
