@@ -209,3 +209,4 @@ resources
 results
 G2Net-Detecting-Continuous-Gravitational-Waves
 wandb
+*.json

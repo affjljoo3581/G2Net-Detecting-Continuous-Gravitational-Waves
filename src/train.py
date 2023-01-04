@@ -19,7 +19,9 @@ warnings.filterwarnings("ignore")
 
 def main(config: DictConfig):
     name = f"{config.train.name}-{''.join(random.choices('0123456789abcdef', k=6))}"
-    ckpt = ModelCheckpoint(save_last=True, save_weights_only=True)
+    ckpt = ModelCheckpoint(
+        monitor="val/real/auc", mode="max", save_last=True, save_weights_only=True
+    )
 
     Trainer(
         accelerator="gpu",
@@ -36,11 +38,16 @@ def main(config: DictConfig):
         callbacks=[ckpt, LearningRateMonitor("step")],
     ).fit(G2NetLightningModule(config), *create_train_val_dataloaders(config))
 
-    # Save the best-scored model by compiling to JIT serialized model.
+    # Save the best-scored and last model by compiling to JIT serialized model.
     module = G2NetLightningModule.load_from_checkpoint(
         ckpt.best_model_path, config=config
     )
-    torch.jit.script(module.model).save(f"{name}.pt")
+    torch.jit.script(module.model).save(f"{name}-best.pt")
+
+    module = G2NetLightningModule.load_from_checkpoint(
+        ckpt.last_model_path, config=config
+    )
+    torch.jit.script(module.model).save(f"{name}-last.pt")
 
 
 if __name__ == "__main__":
